@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import {Routes, Route, BrowserRouter} from "react-router-dom";
 import SignUp from "./sign-up/SignUp";
 
 const App = () => {
@@ -7,7 +8,13 @@ const App = () => {
     console.log(formData);
   };
 
-  return <SignUp onSubmit={handleSubmit} />;
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/signup" element={<SignUp onSubmit={handleSubmit}/>} />
+            </Routes>
+        </BrowserRouter>
+    );
 };
 
 export default App;
