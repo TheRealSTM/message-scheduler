@@ -1,6 +1,19 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import {
+    Box,
+    Button,
+    TextField,
+    Typography,
+    Grid,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent
+} from "@mui/material";
 
-type Frequency = 'adhoc' | 'hourly' | 'daily' | 'weekly' | 'monthly';
+const frequencies = ['adhoc', 'hourly', 'daily', 'weekly', 'monthly'] as const;
+type Frequency = typeof frequencies[number];
 
 interface MessageCreationFormProps {
     onSubmit: (data: {
@@ -12,12 +25,12 @@ interface MessageCreationFormProps {
 }
 
 const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
-    const [frequency, setFrequency] = useState<Frequency>('hourly');
+    const [frequency, setFrequency] = useState<Frequency>("adhoc");
     const [startDate, setStartDate] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>('');
 
-    const handleFrequencyChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const handleFrequencyChange = (event: SelectChangeEvent<Frequency>) => {
         setFrequency(event.target.value as Frequency);
     };
 
@@ -39,27 +52,71 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="frequency">Frequency: </label>
-            <select id="frequency" value={frequency} onChange={handleFrequencyChange}>
-                <option value="adhoc">Ad Hoc</option>
-                <option value="hourly">Hourly</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="weekly">Monthly</option>
-            </select>
-            <br />
-            <label htmlFor="startDate">Start Date: </label>
-            <input type="text" id="startDate" value={startDate} onChange={handleStartDateChange} />
-            <br />
-            <label htmlFor="message">Message: </label>
-            <input type="text" id="message" value={message} onChange={handleMessageChange} />
-            <br />
-            <label htmlFor="phoneNumber">Phone Number: </label>
-            <input type="text" id="phoneNumber" value={phoneNumber} onChange={handlePhoneNumberChange} />
-            <br />
-            <button type="submit">Submit</button>
-        </form>
+        <Grid container justifyContent="center" alignItems="center" style={{ minHeight: '100vh' }}>
+            <Grid item xs={12} sm={6} md={4}>
+
+                <form onSubmit={handleSubmit}>
+                    <Typography variant="h5" align="center">Create Message:</Typography>
+                    <Box margin={1}>
+                        <FormControl fullWidth>
+                            <InputLabel id="message-frequency-label">Message Frequency</InputLabel>
+                            <Select
+                                labelId="message-frequency-label"
+                                id="frequency"
+                                value={frequency}
+                                label="Message Frequency"
+                                onChange={handleFrequencyChange}
+                            >
+                                {
+                                    frequencies.map(
+                                        (frequency) => (
+                                            <MenuItem key={frequency} value={frequency}>
+                                                {frequency.charAt(0).toUpperCase() + frequency.slice(1)}
+                                            </MenuItem>
+                                        )
+                                    )
+                                }
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box margin={1}>
+                        <TextField
+                            fullWidth
+                            label="Start Date"
+                            name="startDate"
+                            value={startDate}
+                            onChange={handleStartDateChange}
+                            variant="outlined"
+                        />
+                    </Box>
+                    <Box margin={1}>
+                        <TextField
+                            fullWidth
+                            label="Message"
+                            name="message"
+                            value={message}
+                            onChange={handleMessageChange}
+                            variant="outlined"
+                        />
+                    </Box>
+                    <Box margin={1}>
+                        <TextField
+                            fullWidth
+                            label="Phone Number"
+                            name="phoneNumber"
+                            value={phoneNumber}
+                            onChange={handlePhoneNumberChange}
+                            variant="outlined"
+                        />
+                    </Box>
+                    <Box margin={1}>
+                        <Button variant="contained" color="primary" type="submit" fullWidth>
+                            Submit
+                        </Button>
+                    </Box>
+                </form>
+            </Grid>
+        </Grid>
     );
 };
 
