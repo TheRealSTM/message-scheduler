@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 
-import dayjs, {Dayjs} from "dayjs";
+import dayjs from "dayjs";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -25,24 +25,18 @@ interface MessageCreationFormProps {
         frequency: Frequency;
         messageStartDate: dayjs.Dayjs | null;
         message: string;
-        phoneNumber: string;
+        destinationPhoneNumber: string;
+        callbackPhoneNumber: string;
     }) => void;
 }
 
 const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
-    const [frequency, setFrequency] = useState<Frequency>("adhoc");
-    const [checked, setChecked] = useState(false);
     const [messageStartDate, setMessageStartDate] = useState<dayjs.Dayjs | null>(dayjs());
     const [message, setMessage] = useState<string>('');
-    const [phoneNumber, setPhoneNumber] = useState<string>('');
-
-    const handleFrequencyChange = (event: SelectChangeEvent<Frequency>) => {
-        setFrequency(event.target.value as Frequency);
-    };
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setChecked(event.target.checked);
-    };
+    const [destinationPhoneNumber, setDestinationPhoneNumber] = useState<string>('');
+    const [callbackPhoneNumber, setCallbackPhoneNumberPhoneNumber] = useState<string>('');
+    const [repeatMessageChecked, setRepeatMessageChecked] = useState(false);
+    const [frequency, setFrequency] = useState<Frequency>("adhoc");
 
     const handleMessageStartDateChange = (date: dayjs.Dayjs | null) => {
         setMessageStartDate(date);
@@ -52,14 +46,53 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
         setMessage(event.target.value);
     };
 
-    const handlePhoneNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setPhoneNumber(event.target.value);
+    const handleDestinationPhoneNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setDestinationPhoneNumber(event.target.value);
+    };
+
+    const handleCallbackPhoneNumberChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setCallbackPhoneNumberPhoneNumber(event.target.value);
     };
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onSubmit({ frequency, messageStartDate, message, phoneNumber });
+        onSubmit({ frequency, messageStartDate, message, destinationPhoneNumber, callbackPhoneNumber });
     };
+
+    const handleFrequencyChange = (event: SelectChangeEvent<Frequency>) => {
+        setFrequency(event.target.value as Frequency);
+    };
+
+    const handleRepeatMessageChecked = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRepeatMessageChecked(event.target.checked);
+    };
+
+    const renderMessageFrequencySelectComponent = () => {
+        return (
+            <Box margin={1}>
+                <FormControl fullWidth>
+                    <InputLabel id="message-frequency-label">Message Frequency</InputLabel>
+                    <Select
+                        labelId="message-frequency-label"
+                        id="frequency"
+                        value={frequency}
+                        label="Message Frequency"
+                        onChange={handleFrequencyChange}
+                    >
+                        {
+                            frequencies.map(
+                                (frequency) => (
+                                    <MenuItem key={frequency} value={frequency}>
+                                        {frequency.charAt(0).toUpperCase() + frequency.slice(1)}
+                                    </MenuItem>
+                                )
+                            )
+                        }
+                    </Select>
+                </FormControl>
+            </Box>
+        );
+    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -67,28 +100,6 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
                 <Grid item xs={12} sm={6} md={4}>
                     <form onSubmit={handleSubmit}>
                         <Typography variant="h5" align="center">Create Message:</Typography>
-                        <Box margin={1}>
-                            <FormControl fullWidth>
-                                <InputLabel id="message-frequency-label">Message Frequency</InputLabel>
-                                <Select
-                                    labelId="message-frequency-label"
-                                    id="frequency"
-                                    value={frequency}
-                                    label="Message Frequency"
-                                    onChange={handleFrequencyChange}
-                                >
-                                    {
-                                        frequencies.map(
-                                            (frequency) => (
-                                                <MenuItem key={frequency} value={frequency}>
-                                                    {frequency.charAt(0).toUpperCase() + frequency.slice(1)}
-                                                </MenuItem>
-                                            )
-                                        )
-                                    }
-                                </Select>
-                            </FormControl>
-                        </Box>
                         <Box margin={1}>
                             <DatePicker
                                 label="Message Start date"
@@ -109,10 +120,20 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
                         <Box margin={1}>
                             <TextField
                                 fullWidth
-                                label="Phone Number"
-                                name="phoneNumber"
-                                value={phoneNumber}
-                                onChange={handlePhoneNumberChange}
+                                label="Destination Phone Number"
+                                name="destinationPhoneNumber"
+                                value={destinationPhoneNumber}
+                                onChange={handleDestinationPhoneNumberChange}
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Box margin={1}>
+                            <TextField
+                                fullWidth
+                                label="Callback Phone Number"
+                                name="callbackPhoneNumber"
+                                value={callbackPhoneNumber}
+                                onChange={handleCallbackPhoneNumberChange}
                                 variant="outlined"
                             />
                         </Box>
@@ -120,8 +141,8 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
                             <FormControlLabel
                                 control={
                                     <Checkbox
-                                        checked={checked}
-                                        onChange={handleChange}
+                                        checked={repeatMessageChecked}
+                                        onChange={handleRepeatMessageChecked}
                                         name="repeat"
                                         color="primary"
                                     />
@@ -129,6 +150,9 @@ const MessageCreationForm = ({ onSubmit }: MessageCreationFormProps) => {
                                 label="Repeat"
                             />
                         </Box>
+                        {
+                            repeatMessageChecked ? renderMessageFrequencySelectComponent() : null
+                        }
                         <Box margin={1}>
                             <Button variant="contained" color="primary" type="submit" fullWidth>
                                 Submit
